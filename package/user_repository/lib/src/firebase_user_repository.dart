@@ -26,31 +26,52 @@ final userCollection = FirebaseFirestore.instance.collection("users");
   }
 
   @override
-  Future<void> setUserData(MyUser user) {
-    // TODO: implement setUserData
-    throw UnimplementedError();
+  Future<void> setUserData(MyUser user)async{
+    try{
+      await userCollection.doc(user.uid).set(user.toEntity().toDocument());
+    }catch(e){
+      log(e.toString());
+      rethrow;
+    }
   }
 
   @override
-  Future<void> signIn(String email, String password) {
-    // TODO: implement signIn
-    throw UnimplementedError();
+  Future<void> signIn(String email, String password)async {
+    try{
+      await _firebaseAuth.signInWithEmailAndPassword(email: email, password: password);
+    }catch(e){
+      log(e.toString());
+      rethrow;
+    }
   }
 
   @override
-  Future<void> signOut() {
-    // TODO: implement signOut
-    throw UnimplementedError();
+  Future<void> signOut() async{
+    try{
+     await _firebaseAuth.signOut();
+    }catch(e){
+      log(e.toString());
+      rethrow;
+    }
   }
 
   @override
-  Future<MyUser> signUp(MyUser user, String password) {
-    // TODO: implement signUp
-    throw UnimplementedError();
+  Future<MyUser> signUp(MyUser user, String password)async {
+    try{
+      final credentical = await _firebaseAuth.createUserWithEmailAndPassword(email: user.email, password: password);
+      user = user.copyWith(uid: credentical.user!.uid);
+      return user;
+    }catch(e){
+      log(e.toString());
+      rethrow;
+    }
   }
 
   @override
-  // TODO: implement user
-  Stream<User?> get user => throw UnimplementedError();
+  Stream<User?> get user {
+    return _firebaseAuth.authStateChanges().map((firebaseUser){
+      return firebaseUser;
+    });
+  }
 
 }

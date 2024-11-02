@@ -1,13 +1,26 @@
-import 'package:bloc/bloc.dart';
+import 'dart:developer';
+
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:user_repository/user_repository.dart';
 
 part 'sign_up_event.dart';
 part 'sign_up_state.dart';
 
 class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
-  SignUpBloc() : super(SignUpInitial()) {
-    on<SignUpEvent>((event, emit) {
-      // TODO: implement event handler
+  final UserRepository _userRepository;
+  SignUpBloc(UserRepository userRepository) : _userRepository = userRepository, super(SignUpInitial()) {
+    on<SignUpRequest>((event, emit) async{
+      emit(SignUpProcess());
+      try{
+        MyUser user = await _userRepository.signUp(event.user, event.password);
+        await _userRepository.setUserData(user);
+        emit(SignUpSuccess());
+      }catch(e){
+        log(e.toString());
+        emit(SignUpFailure(e.toString()));
+      }
     });
   }
 }
