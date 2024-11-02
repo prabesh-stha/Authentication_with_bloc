@@ -1,11 +1,10 @@
 part of 'sign_in_bloc.dart';
 
-@immutable
 abstract class SignInEvent extends Equatable {
   const SignInEvent();
 
   @override
-  List<Object> get props => [];
+  List<Object?> get props => [];
 }
 
 class SignInRequest extends SignInEvent{
@@ -14,3 +13,5 @@ class SignInRequest extends SignInEvent{
 
   const SignInRequest(this.email, this.password);
 }
+
+class SignOutRequest extends SignInEvent{}

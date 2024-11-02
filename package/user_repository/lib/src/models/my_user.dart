@@ -9,7 +9,7 @@ class MyUser extends Equatable{
 
   const MyUser({required this.uid, required this.email, required this.name});
 
-  static MyUser empty = const MyUser(uid: "", email: "", name: "");
+  static const MyUser empty = MyUser(uid: "", email: "", name: "");
 
   MyUser copyWith({
     String? uid,

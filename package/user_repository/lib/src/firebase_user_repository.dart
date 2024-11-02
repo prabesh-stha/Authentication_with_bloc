@@ -2,14 +2,12 @@ import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:user_repository/src/models/my_user.dart';
-import 'package:user_repository/src/user_repo.dart';
 import 'package:user_repository/user_repository.dart';
 
 class FirebaseUserRepository implements UserRepository{
-FirebaseAuth _firebaseAuth;
+final FirebaseAuth _firebaseAuth;
 
-FirebaseUserRepository(FirebaseAuth? firebaseAuth) : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance;
+FirebaseUserRepository({FirebaseAuth? firebaseAuth}) : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance;
 
 final userCollection = FirebaseFirestore.instance.collection("users");
 
@@ -58,7 +56,7 @@ final userCollection = FirebaseFirestore.instance.collection("users");
   @override
   Future<MyUser> signUp(MyUser user, String password)async {
     try{
-      final credentical = await _firebaseAuth.createUserWithEmailAndPassword(email: user.email, password: password);
+      UserCredential credentical = await _firebaseAuth.createUserWithEmailAndPassword(email: user.email, password: password);
       user = user.copyWith(uid: credentical.user!.uid);
       return user;
     }catch(e){

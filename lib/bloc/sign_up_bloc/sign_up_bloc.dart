@@ -10,7 +10,7 @@ part 'sign_up_state.dart';
 
 class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
   final UserRepository _userRepository;
-  SignUpBloc(UserRepository userRepository) : _userRepository = userRepository, super(SignUpInitial()) {
+  SignUpBloc({required UserRepository userRepository}) : _userRepository = userRepository, super(SignUpInitial()) {
     on<SignUpRequest>((event, emit) async{
       emit(SignUpProcess());
       try{
@@ -19,7 +19,7 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
         emit(SignUpSuccess());
       }catch(e){
         log(e.toString());
-        emit(SignUpFailure(e.toString()));
+        emit(SignUpFailure());
       }
     });
   }
