@@ -11,11 +11,14 @@ class SignIn extends StatefulWidget {
 }
 
 class _SignInState extends State<SignIn> {
-  final GlobalKey _formKey = GlobalKey();
+  final _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool obscureText = true;
   bool signInRequest = false;
+  String? errMsg;
+  String? signInError;
+
   @override
   Widget build(BuildContext context) {
     return BlocListener<SignInBloc, SignInState>(listener: (context, state){
@@ -30,6 +33,7 @@ class _SignInState extends State<SignIn> {
       }else if(state is SignInFailure){
         setState(() {
           signInRequest = false;
+          signInError = "Invalid credential";
         });
       }
     },
@@ -37,14 +41,25 @@ class _SignInState extends State<SignIn> {
         key: _formKey,
         child: Column(
           children: [
+
+            if(signInError != null)
+              Center(child: Text(signInError!, style: const TextStyle(color: Colors.red),),),
             const SizedBox(height: 20,),
 
             TextFormField(
               controller: _emailController,
               keyboardType: TextInputType.emailAddress,
+              validator: (value) {
+                if(value!.isEmpty){
+                  return "Please enter email.";
+                }else{
+                  return null;
+                }
+              },
               decoration: InputDecoration(
                 hintText: "Email",
                 prefixIcon: const Icon(CupertinoIcons.mail),
+                errorText: errMsg,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(25)
                 )
@@ -56,7 +71,15 @@ class _SignInState extends State<SignIn> {
             TextFormField(
               controller: _passwordController,
               obscureText: obscureText,
+              validator: (value) {
+                if(value!.isEmpty){
+                  return "Please enter password";
+                }else{
+                  return null;
+                }
+              },
               decoration: InputDecoration(
+                errorText: errMsg,
                 hintText: "Password",
                 prefixIcon: const Icon(CupertinoIcons.lock),
                 suffixIcon: IconButton(onPressed: (){
@@ -83,7 +106,13 @@ class _SignInState extends State<SignIn> {
                 )
               ),
               onPressed: (){
-              context.read<SignInBloc>().add(SignInRequest(_emailController.text, _passwordController.text));
+                setState(() {
+                  signInError = null;
+                  errMsg = null;
+                });
+                if(_formKey.currentState!.validate()){
+                   context.read<SignInBloc>().add(SignInRequest(_emailController.text, _passwordController.text));
+                }
             }, child: const Text("Sign in")),
             )
             :
