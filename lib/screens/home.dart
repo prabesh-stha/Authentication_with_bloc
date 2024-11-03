@@ -1,6 +1,4 @@
-import 'package:authentication_with_bloc/bloc/authentication_bloc/authentication_bloc.dart';
 import 'package:authentication_with_bloc/bloc/sign_in_bloc/sign_in_bloc.dart';
-import 'package:authentication_with_bloc/screens/welcome.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
