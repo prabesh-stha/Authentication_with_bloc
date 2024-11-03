@@ -1,4 +1,5 @@
 import 'package:authentication_with_bloc/bloc/sign_up_bloc/sign_up_bloc.dart';
+import 'package:authentication_with_bloc/screens/validation/validation_string.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -12,12 +13,14 @@ class SignUp extends StatefulWidget {
 }
 
 class _SignUpState extends State<SignUp> {
-  final _formKey = GlobalKey();
+  final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _nameController = TextEditingController();
   bool signInRequest = false;
   bool obscureText = true;
+  String? errMsg;
+  String? signUpError;
 
   @override
   Widget build(BuildContext context) {
@@ -31,6 +34,9 @@ class _SignUpState extends State<SignUp> {
            signInRequest = true;
         });
       }else if (state is SignUpFailure){
+        setState(() {
+          signUpError = "Error while signing up";
+        });
         return;
       }
     },
@@ -38,12 +44,26 @@ class _SignUpState extends State<SignUp> {
         key: _formKey,
         child: Column(
           children: [
+
+            if(signUpError != null)
+              Center(child: Text(signUpError!, style: const TextStyle(color: Colors.red),),),
+            
             const SizedBox(height: 20,),
 
             TextFormField(
               controller: _emailController,
               keyboardType: TextInputType.emailAddress,
+              validator: (value) {
+                if(value!.isEmpty){
+                  return "Please enter email";
+                }else if(!emailRegex.hasMatch(value)){
+                  return "Please enter valid email";
+                }else{
+                  return null;
+                }
+              },
               decoration: InputDecoration(
+                errorText: errMsg,
                 hintText: "Email",
                 prefixIcon: const Icon(CupertinoIcons.mail),
                 border: OutlineInputBorder(
@@ -57,7 +77,18 @@ class _SignUpState extends State<SignUp> {
             TextFormField(
               controller: _passwordController,
               obscureText: obscureText,
+              validator: (value) {
+                if(value!.isEmpty){
+                  return "Please enter password";
+                }else if(!passwordRegex.hasMatch(value)){
+                  return "Password must be 8 character of number, special character, capital and small letter";
+                }else{
+                  return null;
+                }
+              },
               decoration: InputDecoration(
+                errorMaxLines: 2,
+                errorText: errMsg,
                 hintText: "Password",
                 prefixIcon: const Icon(CupertinoIcons.lock),
                 suffixIcon: IconButton(onPressed: (){
@@ -76,7 +107,17 @@ class _SignUpState extends State<SignUp> {
             TextFormField(
               controller: _nameController,
               keyboardType: TextInputType.name,
+              validator: (value) {
+                if(value!.isEmpty){
+                  return "Please enter name";
+                }else if(value.length > 30){
+                  return "Name too long";
+                }else{
+                  return null;
+                }
+              },
               decoration: InputDecoration(
+                errorText: errMsg,
                 hintText: "Name",
                 prefixIcon: const Icon(CupertinoIcons.person),
                 border: OutlineInputBorder(
@@ -96,11 +137,17 @@ class _SignUpState extends State<SignUp> {
                 backgroundColor: Colors.blue
               ),
               onPressed: (){
-              MyUser user = MyUser.empty;
+                setState(() {
+                  errMsg = null;
+                  signUpError = null;
+                });
+              if(_formKey.currentState!.validate()){
+                MyUser user = MyUser.empty;
               user = user.copyWith(email: _emailController.text, name: _nameController.text);
               setState(() {
                 context.read<SignUpBloc>().add(SignUpRequest(user, _passwordController.text));
               });
+              }
             }, child: const Text("Sign up"))
             )
             :
